@@ -1,56 +1,757 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joguinho Independente</title>
+    <title>Classic Solitaire - Pro Edition</title>
     <style>
-        body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            text-align: center;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 40px;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
-        h1 {
-            color: #ff6600;
+        body {
+            background-color: #061a0d;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
         }
-        .game-container {
-            margin-top: 40px;
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            height: 705px;
+            background: radial-gradient(circle, #115e29 0%, #0a3d1b 100%);
+            border: 5px solid #05260f;
+            border-radius: 16px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        button {
-            background-color: #ff6600;
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f4d35e;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .stats {
+            font-size: 13px;
+            color: #e2e8f0;
+            display: flex;
+            gap: 15px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .game-btn {
+            background: #264653;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
             cursor: pointer;
-            border-radius: 8px;
-            margin-top: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+            transition: 0.2s;
         }
-        button:hover {
-            background-color: #e55b00;
+        .game-btn:hover {
+            background: #2a9d8f;
+            transform: scale(1.05);
+        }
+        .pix-shop-btn {
+            background: linear-gradient(135deg, #2a9d8f, #218380);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            transition: 0.2s;
+        }
+        .pix-shop-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #38b000, #2b9348);
+        }
+        .top-section, .tableau-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .top-section {
+            height: 112px;
+        }
+        .tableau-section {
+            height: 330px;
+            align-items: flex-start;
+        }
+        .pile {
+            width: 85px;
+            height: 112px;
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.15);
+        }
+        .tableau-pile {
+            width: 85px;
+            min-height: 210px;
+            position: relative;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .card {
+            width: 85px;
+            height: 112px;
+            background: #f8fafc;
+            color: #0f172a;
+            border-radius: 8px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            cursor: grab;
+            transition: box-shadow 0.1s;
+        }
+        .card:active {
+            cursor: grabbing;
+        }
+        .card.red {
+            color: #e63946;
+        }
+        .card.back {
+            background: linear-gradient(135deg, #1d3557, #457b9d);
+            border: 2px solid #fff;
+            cursor: default;
+        }
+
+        /* Rodapé de Ajuda para Jogadores */
+        .game-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #cbd5e1;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Modal Apoio */
+        #pix-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 26, 13, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+        .pix-box {
+            background: #11291b;
+            border: 2px solid #2a9d8f;
+            border-radius: 12px;
+            padding: 18px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .pix-box h2 {
+            color: #f4d35e;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+        .pix-box p {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+        }
+        .shop-package {
+            background: #193826;
+            border: 1px solid #2a9d8f;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .shop-package:hover {
+            background: #234d35;
+        }
+        .qr-placeholder {
+            width: 110px;
+            height: 110px;
+            background: #fff;
+            margin: 8px auto;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+        .qr-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .pix-code-box {
+            background: #061a0d;
+            border: 1px dashed #2a9d8f;
+            padding: 6px;
+            font-size: 10px;
+            color: #94a3b8;
+            word-break: break-all;
+            border-radius: 4px;
+            margin: 8px 0;
+            max-height: 45px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .btn-action {
+            background: #f4d35e;
+            color: #000;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .btn-action:hover {
+            background: #ffb703;
+        }
+        .btn-close {
+            background: transparent;
+            color: #cbd5e1;
+            border: none;
+            margin-top: 6px;
+            cursor: pointer;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Espaço de Jogo Independente</h1>
-    <p>Clica no botão para somar pontos e divertir-te!</p>
+    <div id="game-container">
+        <!-- Barra Superior -->
+        <div class="header-bar">
+            <div class="title">🃏 Solitaire Pro</div>
+            <div class="stats">
+                <span>🏆 Pontos: <strong id="score">0</strong></span>
+                <span>🪙 Ouro: <strong id="gold">50</strong></span>
+            </div>
+            <div class="action-buttons">
+                <button class="game-btn" onclick="useHint()">💡 Dica (-10)</button>
+                <button class="game-btn" onclick="useUndo()">↩️ Desfazer (-20)</button>
+            </div>
+            <button class="pix-shop-btn" onclick="openPixShop()">APOIAR O CRIADOR</button>
+        </div>
 
-    <div class="game-container">
-        <div id="score" style="font-size: 24px; margin-bottom: 20px;">Pontuação: 0</div>
-        <button onclick="pontuar()">Clica em mim!</button>
+        <!-- Área Superior -->
+        <div class="top-section">
+            <div class="pile" id="deck-pile" onclick="drawCard()" style="cursor:pointer;" title="Comprar Carta">
+                <div class="card back" style="width:100%; height:100%;"></div>
+            </div>
+            <div class="pile" id="waste-pile" ondragover="allowDrop(event)" ondrop="dropToWaste(event)"></div>
+            <div style="width: 80px;"></div>
+            <div class="pile" id="found-0" ondragover="allowDrop(event)" ondrop="dropToFoundation(event, 0)"></div>
+            <div class="pile" id="found-1" ondragover="allowDrop(event)" ondrop="dropToFoundation(event, 1)"></div>
+            <div class="pile" id="found-2" ondragover="allowDrop(event)" ondrop="dropToFoundation(event, 2)"></div>
+            <div class="pile" id="found-3" ondragover="allowDrop(event)" ondrop="dropToFoundation(event, 3)"></div>
+        </div>
+
+        <!-- Colunas Principais -->
+        <div class="tableau-section">
+            <div class="tableau-pile" id="col-0" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 0)"></div>
+            <div class="tableau-pile" id="col-1" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 1)"></div>
+            <div class="tableau-pile" id="col-2" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 2)"></div>
+            <div class="tableau-pile" id="col-3" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 3)"></div>
+            <div class="tableau-pile" id="col-4" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 4)"></div>
+            <div class="tableau-pile" id="col-5" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 5)"></div>
+            <div class="tableau-pile" id="col-6" ondragover="allowDrop(event)" ondrop="dropToTableau(event, 6)"></div>
+        </div>
+
+        <!-- Rodapé Explicativo (Dica para iniciantes e pessoas mais velhas) -->
+        <div class="game-footer">
+            💡 Dica: Se o jogo travar ou quiser começar uma nova partida, basta clicar no botão de atualizar do navegador (ou apertar F5).
+        </div>
+
+        <!-- Modal Apoio ao Criador -->
+        <div id="pix-modal">
+            <div class="pix-box" id="shop-view">
+                <h2>APOIAR O CRIADOR</h2>
+                <p>Escolha um valor para apoiar e receba ouro bônus no jogo:</p>
+                <div class="shop-package" onclick="selectPackage(500, 5.00)">
+                    <span>500 Moedas de Ouro</span>
+                    <strong style="color: #4ade80;">R$ 5,00</strong>
+                </div>
+                <div class="shop-package" onclick="selectPackage(2000, 15.00)">
+                    <span>2.000 Moedas (Bônus)</span>
+                    <strong style="color: #4ade80;">R$ 15,00</strong>
+                </div>
+                <button class="btn-close" onclick="closePixShop()">Voltar ao Jogo</button>
+            </div>
+
+            <div class="pix-box" id="checkout-view" style="display: none;">
+                <h2 id="checkout-title">Apoio via Pix</h2>
+                <p>Escaneie o QR Code ou copie a chave:</p>
+                <div class="qr-placeholder" id="qr-visual"></div>
+                <div class="pix-code-box" id="pix-copia-cola">Carregando...</div>
+                <button class="btn-action" onclick="copyPixCode()">Copiar Chave PIX Copia e Cola</button>
+                <button class="btn-action" style="background: #2a9d8f; color: #fff;" onclick="simulatePayment()">SIMULAR APOIO CONCLUÍDO</button>
+                <button class="btn-close" onclick="backToShop()">Escolher outro valor</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        let pontos = 0;
-        function pontuar() {
-            pontos++;
-            document.getElementById("score").innerText = "Pontuação: " + pontos;
-        }
-    </script>
+        const minhaChavePix = "Ef999218-f8b8-4f88-b5e8-b44e2f2e6809";
+        const meuNome = "João Carlos";
+        const payloadPix = `00020126580014br.gov.bcb.pix0136${minhaChavePix}5204000053039865802BR5913${meuNome}6009SaoPaulo62070503***6304`;
 
+        let score = 0;
+        let gold = 50;
+        let deck = [];
+        let waste = [];
+        let foundations = [[], [], [], []];
+        let tableau = [[], [], [], [], [], [], []];
+        let historyState = [];
+        let selectedGoldAmount = 500;
+
+        const suits = ['♥', '♦', '♣', '♠'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        function initGame() {
+            deck = [];
+            foundations = [[], [], [], []];
+            waste = [];
+            historyState = [];
+            for (let s of suits) {
+                for (let i = 0; i < values.length; i++) {
+                    deck.push({
+                        suit: s,
+                        value: values[i],
+                        numericValue: i + 1,
+                        color: (s === '♥' || s === '♦') ? 'red' : 'black',
+                        faceUp: false,
+                        id: s + '-' + values[i]
+                    });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5);
+
+            tableau = [[], [], [], [], [], [], []];
+            for (let c = 0; c < 7; c++) {
+                for (let r = c; r < 7; r++) {
+                    let card = deck.pop();
+                    if (r === c) card.faceUp = true;
+                    tableau[r].push(card);
+                }
+            }
+            saveState();
+            render();
+        }
+
+        function saveState() {
+            const stateSnapshot = {
+                score: score,
+                deck: JSON.parse(JSON.stringify(deck)),
+                waste: JSON.parse(JSON.stringify(waste)),
+                foundations: JSON.parse(JSON.stringify(foundations)),
+                tableau: JSON.parse(JSON.stringify(tableau))
+            };
+            historyState.push(stateSnapshot);
+            if (historyState.length > 20) historyState.shift();
+        }
+
+        function drawCard() {
+            saveState();
+            if (deck.length === 0) {
+                deck = waste.reverse();
+                waste = [];
+                deck.forEach(c => c.faceUp = false);
+            } else {
+                let card = deck.pop();
+                card.faceUp = true;
+                waste.push(card);
+            }
+            render();
+        }
+
+        function useHint() {
+            if (gold < 10) {
+                alert("Ouro insuficiente! Visite 'Apoiar o Criador' para ganhar mais ouro.");
+                return;
+            }
+            gold -= 10;
+            render();
+            alert("💡 Dica: Procure por cartas Ás para subir para a fundação ou alterne cores nas colunas (Vermelho sobre Preto).");
+        }
+
+        function useUndo() {
+            if (historyState.length <= 1) {
+                alert("Não há jogadas anteriores para desfazer!");
+                return;
+            }
+            if (gold < 20) {
+                alert("Ouro insuficiente para desfazer jogada! Mínimo de 20 de Ouro.");
+                return;
+            }
+            gold -= 20;
+            historyState.pop();
+            let prevState = historyState[historyState.length - 1];
+            
+            score = prevState.score;
+            deck = JSON.parse(JSON.stringify(prevState.deck));
+            waste = JSON.parse(JSON.stringify(prevState.waste));
+            foundations = JSON.parse(JSON.stringify(prevState.foundations));
+            tableau = JSON.parse(JSON.stringify(prevState.tableau));
+            
+            render();
+            alert("↩️ Jogada desfeita com sucesso!");
+        }
+
+        function render() {
+            document.getElementById('score').innerText = score;
+            document.getElementById('gold').innerText = gold;
+
+            let deckDiv = document.getElementById('deck-pile');
+            deckDiv.innerHTML = deck.length > 0 ? `<div class="card back" style="width:100%; height:100%;"></div>` : `<div style="font-size:10px; text-align:center; padding-top:40px; color:#aaa; cursor:pointer;" onclick="drawCard()">RECARREGAR</div>`;
+
+            let wasteDiv = document.getElementById('waste-pile');
+            wasteDiv.innerHTML = '';
+            if (waste.length > 0) {
+                let topCard = waste[waste.length - 1];
+                let cardElem = createCardElement(topCard, 0, 0, true);
+                cardElem.setAttribute('draggable', true);
+                cardElem.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({source: 'waste', index: waste.length - 1}));
+                };
+                cardElem.ondblclick = () => tryAutoMove({source: 'waste'});
+                wasteDiv.appendChild(cardElem);
+            }
+
+            for (let f = 0; f < 4; f++) {
+                let foundDiv = document.getElementById(`found-${f}`);
+                foundDiv.innerHTML = '';
+                if (foundations[f].length > 0) {
+                    let topCard = foundations[f][foundations[f].length - 1];
+                    let cardElem = createCardElement(topCard, 0, 0, true);
+                    foundDiv.appendChild(cardElem);
+                }
+            }
+
+            for (let c = 0; c < 7; c++) {
+                let colDiv = document.getElementById(`col-${c}`);
+                colDiv.innerHTML = '';
+                tableau[c].forEach((card, index) => {
+                    let cardElem = createCardElement(card, 0, index * 20, card.faceUp);
+                    if (card.faceUp) {
+                        cardElem.setAttribute('draggable', true);
+                        cardElem.ondragstart = (e) => {
+                            e.stopPropagation();
+                            e.dataTransfer.setData('text/plain', JSON.stringify({source: 'tableau', colIndex: c, cardIndex: index}));
+                        };
+                        cardElem.ondblclick = (e) => {
+                            e.stopPropagation();
+                            tryAutoMove({source: 'tableau', colIndex: c, cardIndex: index});
+                        };
+                    } else {
+                        cardElem.onclick = () => {
+                            if (index === tableau[c].length - 1) {
+                                saveState();
+                                card.faceUp = true;
+                                score += 10;
+                                render();
+                            }
+                        };
+                    }
+                    colDiv.appendChild(cardElem);
+                });
+            }
+        }
+
+        function tryAutoMove(data) {
+            let card = getCardFromSource(data);
+            if (!card) return;
+
+            for (let f = 0; f < 4; f++) {
+                let foundPile = foundations[f];
+                let topCard = foundPile.length > 0 ? foundPile[foundPile.length - 1] : null;
+                let isValidFound = false;
+
+                if (!topCard) {
+                    if (card.value === 'A') isValidFound = true;
+                } else {
+                    if (topCard.suit === card.suit && topCard.numericValue === card.numericValue - 1) {
+                        isValidFound = true;
+                    }
+                }
+
+                if (isValidFound) {
+                    if (data.source === 'tableau' && data.cardIndex !== tableau[data.colIndex].length - 1) {
+                        break;
+                    }
+                    saveState();
+                    removeCardFromSource(data);
+                    foundations[f].push(card);
+                    score += 50;
+                    render();
+                    return;
+                }
+            }
+
+            if (data.source === 'tableau' && data.cardIndex !== tableau[data.colIndex].length - 1) {
+                return;
+            }
+
+            for (let c = 0; c < 7; c++) {
+                if (data.source === 'tableau' && data.colIndex === c) continue;
+                let targetPile = tableau[c];
+                let targetCard = targetPile.length > 0 ? targetPile[targetPile.length - 1] : null;
+                let isValidTab = false;
+
+                if (!targetCard) {
+                    if (card.value === 'K') isValidTab = true;
+                } else {
+                    if (targetCard.color !== card.color && targetCard.numericValue === card.numericValue + 1) {
+                        isValidTab = true;
+                    }
+                }
+
+                if (isValidTab) {
+                    saveState();
+                    if (data.source === 'waste') {
+                        waste.pop();
+                        tableau[c].push(card);
+                    } else if (data.source === 'tableau') {
+                        let sourceCol = tableau[data.colIndex];
+                        let movingCards = sourceCol.slice(data.cardIndex);
+                        sourceCol.splice(data.cardIndex, movingCards.length);
+                        tableau[c].push(...movingCards);
+                    }
+                    score += 15;
+                    render();
+                    return;
+                }
+            }
+        }
+
+        function createCardElement(card, left, top, isFaceUp) {
+            let div = document.createElement('div');
+            div.style.left = left + 'px';
+            div.style.top = top + 'px';
+
+            if (!isFaceUp) {
+                div.className = 'card back';
+            } else {
+                div.className = `card ${card.color}`;
+                div.innerHTML = `
+                    <div style="display:flex; flex-direction:column; line-height:1;">
+                        <span>${card.value}</span>
+                        <span>${card.suit}</span>
+                    </div>
+                    <span style="align-self:center; font-size:24px;">${card.suit}</span>
+                    <div style="display:flex; flex-direction:column; line-height:1; align-items:flex-end;">
+                        <span>${card.suit}</span>
+                        <span>${card.value}</span>
+                    </div>
+                `;
+            }
+            return div;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function dropToTableau(ev, targetCol) {
+            ev.preventDefault();
+            let rawData = ev.dataTransfer.getData('text/plain');
+            if (!rawData) return;
+            let data = JSON.parse(rawData);
+            let targetPile = tableau[targetCol];
+            let targetCard = targetPile.length > 0 ? targetPile[targetPile.length - 1] : null;
+
+            if (data.source === 'waste') {
+                let movingCard = waste[waste.length - 1];
+                let isValid = false;
+                if (!targetCard) {
+                    if (movingCard.value === 'K') isValid = true;
+                } else {
+                    if (targetCard.color !== movingCard.color && targetCard.numericValue === movingCard.numericValue + 1) {
+                        isValid = true;
+                    }
+                }
+
+                if (isValid) {
+                    saveState();
+                    waste.pop();
+                    tableau[targetCol].push(movingCard);
+                    score += 15;
+                    render();
+                } else {
+                    alert("Jogada inválida pelas regras do Solitaire!");
+                }
+            } 
+            else if (data.source === 'tableau') {
+                let sourceCol = tableau[data.colIndex];
+                let movingCards = sourceCol.slice(data.cardIndex);
+                let firstMovingCard = movingCards[0];
+
+                let isValid = false;
+                if (!targetCard) {
+                    if (firstMovingCard.value === 'K') isValid = true;
+                } else {
+                    if (targetCard.color !== firstMovingCard.color && targetCard.numericValue === firstMovingCard.numericValue + 1) {
+                        isValid = true;
+                    }
+                }
+
+                if (isValid) {
+                    saveState();
+                    sourceCol.splice(data.cardIndex, movingCards.length);
+                    tableau[targetCol].push(...movingCards);
+                    score += 15 * movingCards.length;
+                    render();
+                } else {
+                    alert("Jogada inválida pelas regras do Solitaire!");
+                }
+            }
+        }
+
+        function dropToFoundation(ev, targetFound) {
+            ev.preventDefault();
+            let rawData = ev.dataTransfer.getData('text/plain');
+            if (!rawData) return;
+            let data = JSON.parse(rawData);
+            
+            if (data.source === 'tableau' && data.cardIndex !== tableau[data.colIndex].length - 1) {
+                alert("Só é permitido mover a carta de cima para a fundação!");
+                return;
+            }
+
+            let movingCard = getCardFromSource(data);
+            if (!movingCard) return;
+
+            let foundPile = foundations[targetFound];
+            let topCard = foundPile.length > 0 ? foundPile[foundPile.length - 1] : null;
+
+            let isValid = false;
+            if (!topCard) {
+                if (movingCard.value === 'A') isValid = true;
+            } else {
+                if (topCard.suit === movingCard.suit && topCard.numericValue === movingCard.numericValue - 1) {
+                    isValid = true;
+                }
+            }
+
+            if (isValid) {
+                saveState();
+                removeCardFromSource(data);
+                foundations[targetFound].push(movingCard);
+                score += 50;
+                render();
+            } else {
+                alert("Movimento inválido para a pilha de fundação!");
+            }
+        }
+
+        function dropToWaste(ev) {
+            ev.preventDefault();
+        }
+
+        function getCardFromSource(data) {
+            if (data.source === 'waste') {
+                return waste[waste.length - 1];
+            } else if (data.source === 'tableau') {
+                return tableau[data.colIndex][data.cardIndex];
+            }
+            return null;
+        }
+
+        function removeCardFromSource(data) {
+            if (data.source === 'waste') {
+                waste.pop();
+            } else if (data.source === 'tableau') {
+                tableau[data.colIndex].splice(data.cardIndex, 1);
+            }
+        }
+
+        function openPixShop() {
+            document.getElementById('pix-modal').style.display = 'flex';
+            document.getElementById('shop-view').style.display = 'block';
+            document.getElementById('checkout-view').style.display = 'none';
+        }
+
+        function closePixShop() {
+            document.getElementById('pix-modal').style.display = 'none';
+        }
+
+        function selectPackage(amount, price) {
+            selectedGoldAmount = amount;
+            document.getElementById('shop-view').style.display = 'none';
+            document.getElementById('checkout-view').style.display = 'block';
+            document.getElementById('checkout-title').innerText = `Apoio de R$ ${price.toFixed(2)}`;
+            
+            document.getElementById('pix-copia-cola').innerText = payloadPix;
+            const encoded = encodeURIComponent(payloadPix);
+            document.getElementById('qr-visual').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encoded}" alt="QR Code Pix">`;
+        }
+
+        function backToShop() {
+            document.getElementById('shop-view').style.display = 'block';
+            document.getElementById('checkout-view').style.display = 'none';
+        }
+
+        function copyPixCode() {
+            navigator.clipboard.writeText(payloadPix).then(() => {
+                alert("Chave Pix Copia e Cola copiada com sucesso!");
+            });
+        }
+
+        function simulatePayment() {
+            gold += selectedGoldAmount;
+            score += 200;
+            render();
+            alert(`Apoio confirmado com sucesso! +${selectedGoldAmount} de Ouro adicionados à tua conta.`);
+            closePixShop();
+        }
+
+        window.onload = initGame;
+    </script>
 </body>
 </html>
