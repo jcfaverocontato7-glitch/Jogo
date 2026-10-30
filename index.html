@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joguinho Independente</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 40px;
+        }
+        h1 {
+            color: #ff6600;
+        }
+        .game-container {
+            margin-top: 40px;
+        }
+        button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #e55b00;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Espaço de Jogo Independente</h1>
+    <p>Clica no botão para somar pontos e divertir-te!</p>
+
+    <div class="game-container">
+        <div id="score" style="font-size: 24px; margin-bottom: 20px;">Pontuação: 0</div>
+        <button onclick="pontuar()">Clica em mim!</button>
+    </div>
+
+    <script>
+        let pontos = 0;
+        function pontuar() {
+            pontos++;
+            document.getElementById("score").innerText = "Pontuação: " + pontos;
+        }
+    </script>
+
+</body>
+</html>
